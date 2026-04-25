@@ -3,16 +3,60 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-react'
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Tag, Truck, Clock } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
+import { ProductCard } from '@/components/ui/product-card'
+
+interface SuggestedProduct {
+  id: string
+  name: string
+  slug: string
+  price: number
+  comparePrice: number | null
+  images: string[]
+  rating: number
+  reviewCount: number
+  stock: number
+  colors: string[]
+  category: { id: string; name: string; slug: string }
+}
+
+function getEstimatedDelivery(): string {
+  const now = new Date()
+  const min = new Date(now)
+  min.setDate(min.getDate() + 3)
+  const max = new Date(now)
+  max.setDate(max.getDate() + 7)
+  const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+  return `${min.toLocaleDateString('en-US', opts)} – ${max.toLocaleDateString('en-US', opts)}`
+}
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, getSubtotal, getShipping, getTax, getTotal } =
     useCartStore()
   const [promoCode, setPromoCode] = useState('')
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
+  const [suggestedProducts, setSuggestedProducts] = useState<SuggestedProduct[]>([])
+
+  useEffect(() => {
+    fetch('/api/products?limit=4&random=true')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSuggestedProducts(data)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const handleRemoveItem = (id: string, name: string) => {
+    removeItem(id)
+    toast.success(`${name} removed from cart`)
+  }
 
   if (items.length === 0) {
     return (
@@ -34,20 +78,42 @@ export default function CartPage() {
             Continue Shopping <ArrowRight size={16} />
           </Link>
         </div>
+
+        {/* You might also like - even when cart is empty */}
+        {suggestedProducts.length > 0 && (
+          <div className="mt-20">
+            <h2 className="mb-8 text-center text-2xl font-bold">You Might Also Like</h2>
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+              {suggestedProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Shopping Cart</h1>
-        <button
-          onClick={clearCart}
-          className="text-sm text-gray-400 hover:text-red-400"
-        >
-          Clear Cart
-        </button>
+      <Breadcrumbs items={[{ label: 'Cart' }]} />
+
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold sm:text-3xl">Shopping Cart</h1>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/products"
+            className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+          >
+            <ArrowLeft size={16} /> Continue Shopping
+          </Link>
+          <button
+            onClick={clearCart}
+            className="text-sm text-gray-400 hover:text-red-400"
+          >
+            Clear Cart
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
@@ -75,8 +141,10 @@ export default function CartPage() {
                       onError={() => setImageErrors((prev) => ({ ...prev, [item.id]: true }))}
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-gray-600">
-                      <ShoppingBag size={24} />
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-800/80 to-gray-900/80">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                        <ShoppingBag size={20} className="text-amber-500/50" />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -114,7 +182,7 @@ export default function CartPage() {
                         {formatPrice(item.price * item.quantity)}
                       </span>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => handleRemoveItem(item.id, item.name)}
                         className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
                       >
                         <Trash2 size={16} />
@@ -150,6 +218,15 @@ export default function CartPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Tax (8%)</span>
                 <span>{formatPrice(getTax())}</span>
+              </div>
+
+              {/* Estimated Delivery */}
+              <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2.5">
+                <Truck size={16} className="shrink-0 text-amber-400" />
+                <div className="text-xs">
+                  <span className="text-gray-400">Estimated delivery: </span>
+                  <span className="font-medium text-gray-200">{getEstimatedDelivery()}</span>
+                </div>
               </div>
 
               {/* Promo code */}
@@ -198,9 +275,29 @@ export default function CartPage() {
                 Add {formatPrice(100 - getSubtotal())} more for free shipping!
               </p>
             )}
+
+            {/* Delivery info */}
+            <div className="mt-4 space-y-2 border-t border-white/5 pt-4">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Clock size={12} className="text-gray-600" />
+                <span>Orders placed before 2PM ship same day</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* You might also like */}
+      {suggestedProducts.length > 0 && (
+        <div className="mt-16">
+          <h2 className="mb-8 text-2xl font-bold">You Might Also Like</h2>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            {suggestedProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

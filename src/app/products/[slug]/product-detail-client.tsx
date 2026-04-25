@@ -9,7 +9,6 @@ import {
   Heart,
   Minus,
   Plus,
-  ChevronRight,
   Star,
   Truck,
   Shield,
@@ -20,6 +19,7 @@ import { useCartStore } from '@/store/cart'
 import { formatPrice, calculateDiscount } from '@/lib/utils'
 import { StarRating } from '@/components/ui/star-rating'
 import { ProductCard } from '@/components/ui/product-card'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 import toast from 'react-hot-toast'
 
 interface Review {
@@ -101,17 +101,13 @@ export function ProductDetailClient({ product, relatedProducts }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Breadcrumb */}
-      <nav className="mb-8 flex items-center gap-2 text-sm text-gray-400">
-        <Link href="/" className="hover:text-white">Home</Link>
-        <ChevronRight size={14} />
-        <Link href="/products" className="hover:text-white">Products</Link>
-        <ChevronRight size={14} />
-        <Link href={`/products?category=${product.category.slug}`} className="hover:text-white">
-          {product.category.name}
-        </Link>
-        <ChevronRight size={14} />
-        <span className="text-gray-300">{product.name}</span>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { label: 'Products', href: '/products' },
+          { label: product.category.name, href: `/products?category=${product.category.slug}` },
+          { label: product.name },
+        ]}
+      />
 
       <div className="grid gap-10 lg:grid-cols-2">
         {/* Image Gallery */}
@@ -133,8 +129,13 @@ export function ProductDetailClient({ product, relatedProducts }: Props) {
                 onError={() => setImageError((prev) => ({ ...prev, [selectedImage]: true }))}
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-gray-600">
-                <ShoppingBag size={64} />
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-800/80 to-gray-900/80">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-amber-500/10">
+                    <ShoppingBag size={32} className="text-amber-500/50" />
+                  </div>
+                  <span className="text-xs text-gray-600">Image unavailable</span>
+                </div>
               </div>
             )}
             {discount > 0 && (

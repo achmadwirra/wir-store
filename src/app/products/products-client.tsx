@@ -11,6 +11,7 @@ import {
   Star,
 } from 'lucide-react'
 import { useState } from 'react'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 
 interface Product {
   id: string
@@ -89,9 +90,20 @@ export function ProductsClient({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: 'Products', href: filters.category ? '/products' : undefined },
+          ...(filters.category
+            ? [{ label: categories.find((c) => c.slug === filters.category)?.name || filters.category }]
+            : []),
+          ...(filters.featured ? [{ label: 'Featured' }] : []),
+        ]}
+      />
+
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-2xl font-bold sm:text-3xl">
           {filters.category
             ? categories.find((c) => c.slug === filters.category)?.name || 'Products'
             : filters.featured

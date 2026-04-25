@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     const sort = searchParams.get('sort') || 'newest'
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
+    const random = searchParams.get('random') === 'true'
 
     const where: Record<string, unknown> = {}
 
@@ -21,6 +22,19 @@ export async function GET(request: Request) {
 
     if (category) {
       where.category = { slug: category }
+    }
+
+    // Random products for "You might also like" section
+    if (random) {
+      const totalCount = await prisma.product.count({ where })
+      const skip = Math.max(0, Math.floor(Math.random() * (totalCount - limit)))
+      const products = await prisma.product.findMany({
+        where,
+        include: { category: { select: { id: true, name: true, slug: true } } },
+        skip,
+        take: limit,
+      })
+      return NextResponse.json(products)
     }
 
     let orderBy: Record<string, string> = { createdAt: 'desc' }

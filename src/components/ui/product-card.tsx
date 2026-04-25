@@ -74,8 +74,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-gray-600">
-                <ShoppingBag size={48} />
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-gray-800/80 to-gray-900/80">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10">
+                    <ShoppingBag size={28} className="text-amber-500/50" />
+                  </div>
+                  <span className="text-[10px] text-gray-600">No image</span>
+                </div>
               </div>
             )}
 

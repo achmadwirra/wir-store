@@ -28,7 +28,7 @@ export default async function HomePage() {
   ])
 
   return (
-    <div className="space-y-20 pb-20">
+    <div className="space-y-20">
       <HeroSection />
       <TrustBadges />
       <CategoriesSection categories={categories} />

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { ProductCard } from '@/components/ui/product-card'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 
 interface Product {
   id: string
@@ -37,7 +38,8 @@ export function SearchClient({ initialQuery, initialResults }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Search</h1>
+      <Breadcrumbs items={[{ label: 'Search' }]} />
+      <h1 className="mb-8 text-2xl font-bold sm:text-3xl">Search</h1>
 
       <form onSubmit={handleSearch} className="mb-10">
         <div className="relative mx-auto max-w-2xl">

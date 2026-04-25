@@ -102,8 +102,26 @@ export function AccountClient({ user, orders, addresses, wishlist }: Props) {
         </div>
       </div>
 
+      {/* Mobile tabs */}
+      <div className="mb-6 flex gap-2 overflow-x-auto no-scrollbar lg:hidden">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'bg-amber-500/10 text-amber-400'
+                : 'border border-white/10 text-gray-400'
+            }`}
+          >
+            <tab.icon size={16} />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex gap-8">
-        {/* Sidebar */}
+        {/* Sidebar - desktop */}
         <aside className="hidden w-56 shrink-0 lg:block">
           <nav className="space-y-1">
             {tabs.map((tab) => (
@@ -123,26 +141,8 @@ export function AccountClient({ user, orders, addresses, wishlist }: Props) {
           </nav>
         </aside>
 
-        {/* Mobile tabs */}
-        <div className="mb-6 flex gap-2 overflow-x-auto no-scrollbar lg:hidden">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-amber-500/10 text-amber-400'
-                  : 'border border-white/10 text-gray-400'
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {activeTab === 'orders' && <OrdersTab orders={orders} />}
           {activeTab === 'wishlist' && <WishlistTab wishlist={wishlist} />}
           {activeTab === 'addresses' && <AddressesTab addresses={addresses} />}

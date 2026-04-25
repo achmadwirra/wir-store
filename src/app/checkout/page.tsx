@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { CreditCard, Lock, AlertTriangle, Check, ArrowLeft } from 'lucide-react'
+import { CreditCard, Lock, AlertTriangle, Check } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -59,14 +60,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <Link
-        href="/cart"
-        className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white"
-      >
-        <ArrowLeft size={16} /> Back to Cart
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: 'Cart', href: '/cart' },
+          { label: 'Checkout' },
+        ]}
+      />
 
-      <h1 className="mb-8 text-3xl font-bold">Checkout</h1>
+      <h1 className="mb-8 text-2xl font-bold sm:text-3xl">Checkout</h1>
 
       {/* Demo mode badge */}
       <div className="mb-6 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3">
@@ -269,7 +270,6 @@ export default function CheckoutPage() {
                 type="submit"
                 whileTap={{ scale: 0.95 }}
                 disabled={isProcessing}
-                onClick={handleSubmit}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-sm font-semibold text-gray-950 transition-colors hover:bg-amber-400 disabled:opacity-50"
               >
                 {isProcessing ? (
